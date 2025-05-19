@@ -195,7 +195,6 @@ interface WhatsAppButtonProps {
 
 const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   scrolledPastHome,
-  isServicesSection, // Use this prop
   activeSection,
   showText,
 }) => {
