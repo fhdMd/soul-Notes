@@ -1,19 +1,33 @@
 import React, { useEffect, useState } from "react";
-import "./FirstPage.css";
+import "./FirstPage.css"; // Make sure this import is correct
+
+// Image Imports
 import WA from "../images/icons8-whatsapp-50.png";
-import GM from "../images/gmail.png";
+import GM from "../images/gmail.png"; // Gmail icon import
 import IG from "../images/ig.png";
 import FB from "../images/fb.png";
 import LI from "../images/linkedin.png";
 import X from "../images/x.png";
 import Logo from "../images/logo-removebg-preview.png";
-import ag from "./images/aanya-gupta.jpg";
+
+// Review Images
+import ag from "./images/aanya-gupta.jpg"; // Ensure paths are correct relative to FirstPage.tsx
 import ap from "./images/arjun-patel.jpg";
 import nj from "./images/neha-joshi.jpg";
 import ps from "./images/priya-sharma.jpg";
 import ri from "./images/rohan-iyer.jpg";
 import vs from "./images/vikram-singh.jpg";
 
+// Card Images for ImageCardTrain
+import birthday from "./cards/birthdday.jfif"; // Ensure paths are correct
+import friendship from "./cards/friendship.jfif";
+import gift from "./cards/gift.jfif";
+import mic from "./cards/mic.jfif";
+import proposal from "./cards/proposal.jfif";
+import romantic from "./cards/romantic.jfif";
+import wedding from "./cards/wedding.jfif";
+
+// Interfaces
 interface PackageProps {
   name: string;
   price: string;
@@ -27,35 +41,38 @@ interface ReviewProps {
   img: string;
 }
 
+interface CardData {
+  id: number;
+  img: string;
+  title: string;
+  description: string;
+}
+
+// Main Component
 const FirstPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState<string>("home");
   const [scrolledPastHome, setScrolledPastHome] = useState(false);
   const [isServicesSection, setIsServicesSection] = useState(false);
   const [showWhatsAppText, setShowWhatsAppText] = useState(false);
   const [prevScrollPos, setPrevScrollPos] = useState(0);
-  const [isScrollingUp, setIsScrollingUp] = useState(false);
-  const [hideNav, setHideNav] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollPos = window.scrollY;
-      const isScrollingUp = currentScrollPos < prevScrollPos;
-      setIsScrollingUp(isScrollingUp);
+      const isScrollingUp = prevScrollPos > currentScrollPos;
       setPrevScrollPos(currentScrollPos);
 
-      const sections = ["home", "services", "reviews", "about", "careers"];
-      const scrollPosition = currentScrollPos + 100;
+      const sections = [
+        "home",
+        "services",
+        "uses",
+        "reviews",
+        "about",
+        "careers",
+      ];
+      const scrollPosition = currentScrollPos + 100; // Adjusted offset for better section activation
       const homeElement = document.getElementById("home");
       const servicesElement = document.getElementById("services");
-      const footerElement = document.querySelector(".site-footer");
-
-      // Check if we're at the bottom of the page
-      if (footerElement) {
-        const footerTop = footerElement.getBoundingClientRect().top;
-        const windowHeight = window.innerHeight;
-        const isAtBottom = footerTop <= windowHeight * 0.5;
-        setHideNav(isAtBottom && !isScrollingUp);
-      }
 
       if (homeElement) {
         const homeHeight = homeElement.offsetHeight;
@@ -69,27 +86,36 @@ const FirstPage: React.FC = () => {
           scrollPosition >= servicesTop &&
           scrollPosition < servicesTop + servicesHeight;
         setIsServicesSection(isInServices);
+        // Keep WhatsApp text visible if scrolling up within or just above the services section
         setShowWhatsAppText(
           isInServices ||
-            (isScrollingUp && currentScrollPos < servicesTop + servicesHeight)
+            (isScrollingUp &&
+              currentScrollPos < servicesTop + servicesHeight &&
+              currentScrollPos > (homeElement?.offsetHeight || 0))
         );
+      } else {
+        // If services element isn't found, fallback logic or hide the text
+        setShowWhatsAppText(scrolledPastHome && activeSection !== "home"); // Show only based on scrolling past home and not in home section
       }
 
+      let currentActive = "home"; // Default to home
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element) {
           const offsetTop = element.offsetTop;
           const offsetHeight = element.offsetHeight;
 
+          // Check if the top of the viewport is within the section bounds
           if (
             scrollPosition >= offsetTop &&
             scrollPosition < offsetTop + offsetHeight
           ) {
-            setActiveSection(section);
-            break;
+            currentActive = section;
+            break; // Found the active section
           }
         }
       }
+      setActiveSection(currentActive);
     };
 
     const fadeInElements = () => {
@@ -97,6 +123,7 @@ const FirstPage: React.FC = () => {
       elements.forEach((element) => {
         const elementTop = element.getBoundingClientRect().top;
         const windowHeight = window.innerHeight;
+        // Trigger fade-in when the element is 150px from the bottom of the viewport
         if (elementTop < windowHeight - 150) {
           element.classList.add("visible");
         }
@@ -105,14 +132,14 @@ const FirstPage: React.FC = () => {
 
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("scroll", fadeInElements);
-    handleScroll();
-    fadeInElements();
+    handleScroll(); // Initial check
+    fadeInElements(); // Initial check
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("scroll", fadeInElements);
     };
-  }, [prevScrollPos]);
+  }, [prevScrollPos, activeSection]); // Updated dependencies
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -125,18 +152,24 @@ const FirstPage: React.FC = () => {
     <div className="page-container">
       <WhatsAppButton
         scrolledPastHome={scrolledPastHome}
-        isServicesSection={isServicesSection}
+        isServicesSection={isServicesSection} // Pass this prop
         activeSection={activeSection}
         showText={showWhatsAppText}
       />
       <div id="home" className="home-section">
-        <Socials />
+        <Socials /> {/* Socials component containing Gmail */}
         <Header />
         <Body />
       </div>
       <div id="services" className="section-wrapper">
         <Services />
       </div>
+      {/* --- Image Card Train Section --- */}
+      <div id="uses" className="section-wrapper uses-section fade-in">
+        <h2 className="uses-title">Songs for Every Occasion</h2>
+        <ImageCardTrain />
+      </div>
+      {/* -------------------------------- */}
       <div id="reviews" className="section-wrapper">
         <Reviews />
       </div>
@@ -146,35 +179,33 @@ const FirstPage: React.FC = () => {
       <div id="careers" className="section-wrapper">
         <Careers />
       </div>
-      <Navigation
-        activeSection={activeSection}
-        scrollToTop={scrollToTop}
-        hideNav={hideNav}
-        isScrollingUp={isScrollingUp}
-      />
+      <Navigation activeSection={activeSection} scrollToTop={scrollToTop} />
       <Footer />
     </div>
   );
 };
 
+// --- WhatsApp Button ---
 interface WhatsAppButtonProps {
   scrolledPastHome: boolean;
-  isServicesSection: boolean;
+  isServicesSection: boolean; // Receive this prop
   activeSection: string;
   showText: boolean;
 }
 
 const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   scrolledPastHome,
-  isServicesSection,
   activeSection,
   showText,
 }) => {
+  // Determine if the button should be expanded based on active section
+  const isExpanded = activeSection !== "home"; // Expanded when not in home section
+
   return (
     <a
-      href="https://wa.me/yournumber"
+      href="https://wa.me/yournumber" // Replace with your actual WhatsApp number
       className={`wa-contact ${scrolledPastHome ? "scrolled" : ""} ${
-        activeSection !== "home" ? "expanded" : ""
+        isExpanded ? "expanded" : "" // Use isExpanded for the class
       }`}
       aria-label="Chat on WhatsApp"
       target="_blank"
@@ -182,24 +213,30 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
     >
       <div
         className={`whatsapp-info ${scrolledPastHome ? "scrolled" : ""} ${
-          activeSection !== "home" ? "expanded" : ""
+          isExpanded ? "expanded" : "" // Use isExpanded for the class
         }`}
       >
         <img src={WA} alt="WhatsApp" className="whatsapp-icon" />
-        {showText && <p className="inquire-wa">Contact for more info</p>}
+        {/* Show text based on the showText prop passed from parent */}
+        {showText && isExpanded && (
+          <p className="inquire-wa">Contact for more info</p>
+        )}
       </div>
     </a>
   );
 };
 
+// --- Socials ---
 const Socials: React.FC = () => {
   return (
     <div className="socials">
+      {/* Gmail Icon and Link */}
       <div className="contact-us">
         <a href="mailto:contact@soulnotes.com" aria-label="Email">
           <img src={GM} alt="Email" />
         </a>
       </div>
+      {/* Other Social Media Icons */}
       <div className="media">
         <a href="#" aria-label="Instagram">
           <img src={IG} alt="Instagram" />
@@ -218,6 +255,7 @@ const Socials: React.FC = () => {
   );
 };
 
+// --- Header ---
 const Header: React.FC = () => {
   return (
     <div className="welcome fade-in">
@@ -228,6 +266,7 @@ const Header: React.FC = () => {
   );
 };
 
+// --- Body ---
 const Body: React.FC = () => {
   return (
     <div className="description fade-in">
@@ -242,6 +281,7 @@ const Body: React.FC = () => {
   );
 };
 
+// --- Services ---
 const Services: React.FC = () => {
   const packages: PackageProps[] = [
     {
@@ -306,7 +346,9 @@ const Services: React.FC = () => {
           ))}
         </div>
         <div className="make-btn-container">
-          <a href="#" className="make-now-btn">
+          <a href="#contact" className="make-now-btn">
+            {" "}
+            {/* Link to contact or specific form */}
             MAKE NOW
           </a>
         </div>
@@ -315,64 +357,78 @@ const Services: React.FC = () => {
   );
 };
 
-interface NavigationProps {
-  activeSection: string;
-  scrollToTop: () => void;
-  hideNav: boolean;
-  isScrollingUp: boolean;
-}
+// --- Image Card Train ---
+const ImageCardTrain: React.FC = () => {
+  const cardsData: CardData[] = [
+    {
+      id: 1,
+      img: birthday,
+      title: "Birthday",
+      description: "Celebrate their special day with a unique birthday song.",
+    },
+    {
+      id: 2,
+      img: friendship,
+      title: "Friendship",
+      description: "An anthem for your unbreakable bond and shared memories.",
+    },
+    {
+      id: 3,
+      img: gift,
+      title: "Unique Gift",
+      description: "Give the unforgettable gift of a personalized melody.",
+    },
+    {
+      id: 4,
+      img: mic,
+      title: "Performances",
+      description: "Custom background tracks or songs for live events.",
+    },
+    {
+      id: 5,
+      img: proposal,
+      title: "Proposal",
+      description: "Pop the question with a song that tells your love story.",
+    },
+    {
+      id: 6,
+      img: romantic,
+      title: "Romantic",
+      description: "Express your deepest feelings through a heartfelt tune.",
+    },
+    {
+      id: 7,
+      img: wedding,
+      title: "Wedding",
+      description: "Create the perfect soundtrack for your wedding day.",
+    },
+  ];
 
-const Navigation: React.FC<NavigationProps> = ({
-  activeSection,
-  scrollToTop,
-  hideNav,
-  isScrollingUp,
-}) => {
+  // Duplicate the cards array to create a seamless loop effect with CSS animation
+  const loopedCards = [...cardsData, ...cardsData];
+
   return (
-    <>
-      <a
-        href="#"
-        className={`logo-home ${activeSection === "home" ? "active" : ""} ${
-          hideNav ? "hidden" : ""
-        } ${isScrollingUp ? "scrolling-up" : ""}`}
-        onClick={(e) => {
-          e.preventDefault();
-          scrollToTop();
-        }}
-      >
-        <img src={Logo} alt="SoulNotes Logo" />
-      </a>
-      <nav
-        className={`footer-index konkhmer-sleokchher-regular ${
-          hideNav ? "hidden" : ""
-        } ${isScrollingUp ? "scrolling-up" : ""}`}
-      >
-        <a
-          href="#services"
-          className={activeSection === "services" ? "active" : ""}
-        >
-          SERVICES
-        </a>
-        <a
-          href="#reviews"
-          className={activeSection === "reviews" ? "active" : ""}
-        >
-          REVIEWS
-        </a>
-        <a href="#about" className={activeSection === "about" ? "active" : ""}>
-          ABOUT US
-        </a>
-        <a
-          href="#careers"
-          className={activeSection === "careers" ? "active" : ""}
-        >
-          CAREERS
-        </a>
-      </nav>
-    </>
+    <div className="image-card-train-container">
+      <div className="image-card-train">
+        {loopedCards.map((card, index) => (
+          <div key={index} className="image-card">
+            <div className="card-inner">
+              <div className="card-front">
+                <img src={card.img} alt={card.title} />
+                <div className="card-title">{card.title}</div>
+              </div>
+              <div className="card-back">
+                <p>{card.description}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 
+// --- Reviews ---
 const Reviews: React.FC = () => {
   const fiveStarReviews: ReviewProps[] = [
     {
@@ -427,7 +483,8 @@ const Reviews: React.FC = () => {
       <div className="reviews-grid">
         {fiveStarReviews.map((review, index) => (
           <div key={index} className="review-card">
-            <img src={review.img} alt={review.name} />
+            <img src={review.img} alt={review.name} className="review-img" />{" "}
+            {/* Added class */}
             <div className="review-header">
               <h3>{review.name}</h3>
               <div className="stars">
@@ -444,6 +501,7 @@ const Reviews: React.FC = () => {
   );
 };
 
+// --- About Us ---
 const AboutUs: React.FC = () => {
   return (
     <section className="about-us fade-in">
@@ -457,7 +515,8 @@ const AboutUs: React.FC = () => {
         Now, we're thrilled to launch our services in India, offering
         personalized songs in four major languages: Hindi, Malayalam, Tamil, and
         English. No matter where you are, we bring music to life in a language
-        that speaks to your heart.
+        that speaks to your heart. We are currently based in Bengaluru,
+        Karnataka.
       </p>
       <h2>What We Do</h2>
       <p>
@@ -474,11 +533,16 @@ const AboutUs: React.FC = () => {
         human-recorded vocals.
       </p>
       <h2>Meet Our Team</h2>
-      <p>Our team consists of passionate musicians and technologists...</p>
+      <p>
+        Our team consists of passionate musicians, lyricists, composers, and
+        technologists dedicated to bringing your musical visions to life.
+      </p>{" "}
+      {/* Added more detail */}
     </section>
   );
 };
 
+// --- Careers ---
 const Careers: React.FC = () => {
   return (
     <section className="careers-page fade-in">
@@ -487,8 +551,8 @@ const Careers: React.FC = () => {
       <p>
         At SoulNotes, we believe in the power of music to tell stories, express
         emotions, and create lasting memories. As we expand our services in
-        Australia and India, we are looking for passionate individuals to be
-        part of our growing team.
+        Australia and India (currently operating from Bengaluru), we are looking
+        for passionate individuals to be part of our growing team.
       </p>
       <h3>Who We Are Looking For</h3>
       <p>We welcome applications from:</p>
@@ -507,6 +571,14 @@ const Careers: React.FC = () => {
         </li>
         <li>Sound Engineers – Mix, master, and refine tracks to perfection.</li>
         <li>Freelancers who want to collaborate with us on a project basis.</li>
+        <li>
+          AI Music Specialists - Innovate with our AI music generation tools.
+        </li>{" "}
+        {/* Added role */}
+        <li>
+          Marketing & Sales Professionals - Help share SoulNotes with the world.
+        </li>{" "}
+        {/* Added role */}
       </ul>
       <h3>Why Work With Us</h3>
       <ul>
@@ -514,26 +586,141 @@ const Careers: React.FC = () => {
         <li>Collaborate with a talented and professional team</li>
         <li>Your work will reach audiences in Australia and India</li>
         <li>Fair compensation for your skills and creativity</li>
+        <li>
+          Be part of an innovative company blending music and technology
+        </li>{" "}
+        {/* Added benefit */}
       </ul>
       <h3>How to Apply</h3>
       <p>
-        Email us at careers@soulnotes.com with your portfolio, demo, or samples.
-        Contact us at +91 1234567890 for more details.
+        Email us at{" "}
+        <a href="mailto:careers@soulnotes.com">careers@soulnotes.com</a> with
+        your portfolio, demo, or samples. Include the role you're interested in
+        in the subject line.
       </p>
       <p>Let's make music that truly connects.</p>
     </section>
   );
 };
 
+// --- Navigation ---
+interface NavigationProps {
+  activeSection: string;
+  scrollToTop: () => void;
+}
+
+const Navigation: React.FC<NavigationProps> = ({
+  activeSection,
+  scrollToTop,
+}) => {
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    targetId: string
+  ) => {
+    e.preventDefault();
+    if (targetId === "#home") {
+      scrollToTop();
+    } else {
+      document.querySelector(targetId)?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  return (
+    <>
+      {/* Logo appears when not in home section, clicking scrolls to top */}
+      {activeSection !== "home" && (
+        <a
+          href="#home" // Links to the top section
+          className={`logo-home ${activeSection === "home" ? "hide-logo" : ""}`} // Hide if already home
+          onClick={(e) => handleNavClick(e, "#home")}
+        >
+          <img src={Logo} alt="SoulNotes Logo" />
+        </a>
+      )}
+      <nav className="footer-index konkhmer-sleokchher-regular">
+        {/* Link to Home/Top */}
+        <a
+          href="#home"
+          className={activeSection === "home" ? "active" : ""}
+          onClick={(e) => handleNavClick(e, "#home")}
+        >
+          HOME
+        </a>
+        <a
+          href="#services"
+          className={activeSection === "services" ? "active" : ""}
+          onClick={(e) => handleNavClick(e, "#services")}
+        >
+          SERVICES
+        </a>
+        <a
+          href="#uses"
+          className={activeSection === "uses" ? "active" : ""}
+          onClick={(e) => handleNavClick(e, "#uses")}
+        >
+          USES
+        </a>
+        <a
+          href="#reviews"
+          className={activeSection === "reviews" ? "active" : ""}
+          onClick={(e) => handleNavClick(e, "#reviews")}
+        >
+          REVIEWS
+        </a>
+        <a
+          href="#about"
+          className={activeSection === "about" ? "active" : ""}
+          onClick={(e) => handleNavClick(e, "#about")}
+        >
+          ABOUT US
+        </a>
+        <a
+          href="#careers"
+          className={activeSection === "careers" ? "active" : ""}
+          onClick={(e) => handleNavClick(e, "#careers")}
+        >
+          CAREERS
+        </a>
+      </nav>
+    </>
+  );
+};
+
+// --- Footer ---
 const Footer: React.FC = () => {
+  const handleFooterLinkClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    targetId: string
+  ) => {
+    e.preventDefault();
+    document.querySelector(targetId)?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <footer className="site-footer">
       <div className="footer-content-wrapper">
         <div className="footer-content">
           <div className="footer-section">
             <h3>Contact Us</h3>
-            <p>Email: contact@soulnotes.com</p>
-            <p>Phone: +91 1234567890</p>
+            <p>
+              Email:{" "}
+              <a href="mailto:contact@soulnotes.com">contact@soulnotes.com</a>
+            </p>
+            <p>
+              Phone: <a href="tel:+911234567890">+91 1234567890</a>
+            </p>{" "}
+            {/* Added tel link */}
+            <p>
+              WhatsApp:{" "}
+              <a
+                href="https://wa.me/yournumber"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Chat with us
+              </a>
+            </p>{" "}
+            {/* Added WhatsApp link */}
             <div className="footer-socials">
               <a href="#" aria-label="Instagram">
                 <img src={IG} alt="Instagram" />
@@ -553,27 +740,79 @@ const Footer: React.FC = () => {
             <h3>Quick Links</h3>
             <ul>
               <li>
-                <a href="#services">Services</a>
+                <a
+                  href="#services"
+                  onClick={(e) => handleFooterLinkClick(e, "#services")}
+                >
+                  Services
+                </a>
               </li>
               <li>
-                <a href="#reviews">Reviews</a>
+                <a
+                  href="#uses"
+                  onClick={(e) => handleFooterLinkClick(e, "#uses")}
+                >
+                  Uses
+                </a>
               </li>
               <li>
-                <a href="#about">About Us</a>
+                <a
+                  href="#reviews"
+                  onClick={(e) => handleFooterLinkClick(e, "#reviews")}
+                >
+                  Reviews
+                </a>
               </li>
               <li>
-                <a href="#careers">Careers</a>
+                <a
+                  href="#about"
+                  onClick={(e) => handleFooterLinkClick(e, "#about")}
+                >
+                  About Us
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#careers"
+                  onClick={(e) => handleFooterLinkClick(e, "#careers")}
+                >
+                  Careers
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#home"
+                  onClick={(e) => handleFooterLinkClick(e, "#home")}
+                >
+                  Back to Top
+                </a>
               </li>
             </ul>
           </div>
-          <div className="footer-section">
+          <div className="footer-section footer-logo-section">
+            {" "}
+            {/* Added class for alignment */}
             <img src={Logo} alt="SoulNotes Logo" className="footer-logo" />
-            <p>© 2025 SoulNotes. All rights reserved.</p>
-            <p>Transforming emotions into melodies since 2023</p>
+            <p>
+              © {new Date().getFullYear()} SoulNotes. All rights reserved.
+            </p>{" "}
+            {/* Dynamic year */}
+            <p>Transforming emotions into melodies.</p> {/* Adjusted slogan */}
+            <p>Bengaluru, Karnataka, India</p> {/* Added location */}
           </div>
         </div>
         <div className="footer-bottom">
           <p>Made with ❤️ in India & Australia</p>
+          <p>
+            Current Date:{" "}
+            {new Date().toLocaleDateString("en-IN", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>{" "}
+          {/* Dynamic date */}
         </div>
       </div>
     </footer>
