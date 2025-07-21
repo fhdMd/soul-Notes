@@ -98,7 +98,7 @@ body {
   left: 25px;
   z-index: 1000; /* Ensure it's above other content */
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Smoother transition */
-  display: flex;
+  /* display: flex; */
   align-items: center;
   text-decoration: none; /* Remove underline from link */
 }
@@ -123,25 +123,27 @@ body {
 
 /* Scrolled State (Past Home) */
 .wa-contact.scrolled .whatsapp-info {
-    background-color: rgba(0, 0, 0, 0.6); /* Darker background when scrolled */
+    background-color: rgba(37, 211, 102, 0.8); /* Darker background when scrolled */
     padding: 8px; /* Slightly larger padding */
+    border-radius: 75px;
 }
 
 .wa-contact.scrolled .whatsapp-icon {
-  width: 45px; /* Larger icon */
-  height: 45px;
+  width: 50px; /* Larger icon */
+  height: 50px;
 }
 
 /* Expanded State (Not Home Section) */
 .wa-contact.expanded .whatsapp-info {
     background-color: rgba(37, 211, 102, 0.8); /* WhatsApp Green background */
-    padding: 10px 15px; /* Wider padding when expanded */
+    padding: 8px; /* Wider padding when expanded */
 }
 
 .wa-contact.expanded .whatsapp-icon {
   width: 50px; /* Even larger icon */
   height: 50px;
-  margin-right: 5px; /* Space between icon and text */
+  margin-right: 5px; /*Space between icon and text*/
+  border-radius: 50px;
 }
 
 .wa-contact:hover {
@@ -167,7 +169,6 @@ body {
   opacity: 1;
   max-width: 200px; /* Allow text to appear */
 }
-
 
 /* Social Icons */
 .socials {

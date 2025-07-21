@@ -50,7 +50,7 @@ interface CardData {
 
 // Main Component
 const FirstPage: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<string>("home");
+  const [activeSection, setActiveSection] = useState("home");
   const [scrolledPastHome, setScrolledPastHome] = useState(false);
   const [isServicesSection, setIsServicesSection] = useState(false);
   const [showWhatsAppText, setShowWhatsAppText] = useState(false);
@@ -70,7 +70,7 @@ const FirstPage: React.FC = () => {
         "about",
         "careers",
       ];
-      const scrollPosition = currentScrollPos + 100; // Adjusted offset for better section activation
+      const scrollPosition = currentScrollPos ; // Adjusted offset for better section activation
       const homeElement = document.getElementById("home");
       const servicesElement = document.getElementById("services");
 
@@ -161,7 +161,8 @@ const FirstPage: React.FC = () => {
         <Header />
         <Body />
       </div>
-      <div id="services" className="section-wrapper">
+      <div id="services" className="
+      ">
         <Services />
       </div>
       {/* --- Image Card Train Section --- */}
@@ -235,9 +236,9 @@ const Socials: React.FC = () => {
         <a href="mailto:contact@soulnotes.com" aria-label="Email">
           <img src={GM} alt="Email" />
         </a>
-      </div>
+      {/* </div> */}
       {/* Other Social Media Icons */}
-      <div className="media">
+      {/* <div className="media"> */}
         <a href="#" aria-label="Instagram">
           <img src={IG} alt="Instagram" />
         </a>
