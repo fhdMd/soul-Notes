@@ -51,4 +51,8 @@ export default tseslint.config({
     ...reactDom.configs.recommended.rules,
   },
 })
+
+//run npm install --save-dev @types/react @types/react-dom to fix imports
+
+//npm run dev to start it
 ```
